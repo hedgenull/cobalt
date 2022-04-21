@@ -1,7 +1,6 @@
 from lex import *
 from emit import *
 from parse import *
-import sys
 import argparse
 
 if __name__ == "__main__":
