@@ -192,6 +192,15 @@ class Parser:
             self.emitter.emitLine("}")
             self.match(TokenType.IDENT)
 
+        # "Abort" "(" STRING ")"
+        elif self.checkToken(TokenType.Abort):
+            self.nextToken()
+            self.match(TokenType.LPAREN)
+            msg = self.curToken.text
+            self.match(TokenType.STRING)
+            self.emitter.emitLine("printf(\"" + msg + "\");\nreturn 1;")
+            self.match(TokenType.RPAREN)
+
         # This is not a valid statement. Error!
         else:
             self.abort("Invalid statement at " + self.curToken.text + " (" +
