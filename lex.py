@@ -38,7 +38,6 @@ class TokenType(enum.Enum):
     Var = 105
     If = 106
     While = 107
-    Proc = 108
     # Operators.
     EQ = 201
     PLUS = 202
