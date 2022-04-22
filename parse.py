@@ -66,7 +66,9 @@ class Parser:
         self.emitter.headerLine("int main (void) {")
         self.match(TokenType.Module)
         self.match(TokenType.LBRACE)
-        self.nl()
+
+        while self.checkToken(TokenType.NEWLINE):
+            self.nextToken()
 
         # Parse all the statements in the program.
         while not self.checkToken(TokenType.RBRACE):
