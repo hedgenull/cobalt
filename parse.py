@@ -12,6 +12,7 @@ class Parser:
         self.labelsDeclared = set()  # Keep track of all labels declared
         self.labelsGotoed = set(
         )  # All labels goto'ed, so we know if they exist or not.
+        self.imports = set() # All imported modules
 
         self.curToken = None
         self.peekToken = None
@@ -206,6 +207,16 @@ class Parser:
             self.match(TokenType.STRING)
             self.emitter.emitLine("printf(\"" + msg + "\");\nreturn 1;")
             self.match(TokenType.RPAREN)
+        
+        # "Import" "(" STRING ")"
+        elif self.checkToken(TokenType.Import):
+            self.nextToken()
+            self.match(TokenType.LPAREN)
+            msg = self.curToken.text
+            self.match(TokenType.STRING)
+            self.match(TokenType.RPAREN)
+
+            self.imports.add(msg)
 
         # This is not a valid statement. Error!
         else:
