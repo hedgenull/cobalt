@@ -44,12 +44,14 @@ class Parser:
         # No need to worry about passing the EOF, lexer handles that.
 
     def abort(self, message):
-        sys.exit("Error. " + message)
+        """Abort the program."""
+        sys.exit("Error: " + message)
 
     # Production rules.
 
     # program ::= Module {statement} Exit;
     def program(self):
+        """Program node for the AST."""
         self.emitter.headerLine("#include <stdio.h>\n")
 
         # Since some newlines are required in our grammar, need to skip the excess.
@@ -60,6 +62,7 @@ class Parser:
 
     # Module ::= {statement}
     def module(self):
+        """Module node for the AST."""
         self.emitter.headerLine("int main (void) {")
         self.match(TokenType.Module)
         self.match(TokenType.LBRACE)
@@ -85,6 +88,7 @@ class Parser:
 
     # One of the following statements...
     def statement(self):
+        """Statement node for the AST."""
         # Check the first token to see what kind of statement this is.
 
         # "PrintLn" "(" (expression | string) ")"
@@ -211,6 +215,7 @@ class Parser:
 
     # Return true if the current token is a comparison operator.
     def isComparisonOperator(self):
+        """Check if the current token is a comparison operator."""
         return self.checkToken(TokenType.GT) or self.checkToken(
             TokenType.GTEQ) or self.checkToken(
                 TokenType.LT) or self.checkToken(
@@ -219,6 +224,7 @@ class Parser:
 
     # comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
     def comparison(self):
+        """Comparison node for the AST."""
         self.expression()
         # Must be at least one comparison operator and another expression.
         if self.isComparisonOperator():
@@ -233,6 +239,7 @@ class Parser:
 
     # expression ::= term {( "-" | "+" ) term}
     def expression(self):
+        """Expression node for the AST."""
         self.term()
         # Can have 0 or more +/- and expressions.
         while self.checkToken(TokenType.PLUS) or self.checkToken(
@@ -243,6 +250,7 @@ class Parser:
 
     # term ::= unary {( "/" | "*" ) unary}
     def term(self):
+        """Term node for the AST."""
         self.unary()
         # Can have 0 or more *// and expressions.
         while self.checkToken(TokenType.ASTERISK) or self.checkToken(
@@ -253,6 +261,7 @@ class Parser:
 
     # unary ::= ["+" | "-"] primary
     def unary(self):
+        """Unary node for the AST."""
         # Optional unary +/-
         if self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
             self.emitter.emit(self.curToken.text)
@@ -261,6 +270,7 @@ class Parser:
 
     # primary ::= number | ident
     def primary(self):
+        """Primary node for the AST."""
         if self.checkToken(TokenType.NUMBER):
             self.emitter.emit(self.curToken.text)
             self.nextToken()
@@ -278,6 +288,7 @@ class Parser:
 
     # nl ::= "\n"+
     def nl(self):
+        """Match one or more newlines."""
         # Require at least one newline.
         self.match(TokenType.NEWLINE)
         # But we will allow extra newlines too, of course.
@@ -285,9 +296,10 @@ class Parser:
             self.nextToken()
 
     def semi_nl(self):
+        """Match one semicolon and optional newlines."""
         # Require a semicolon and at least one newline.
         self.match(TokenType.SEMI)
-        self.match(TokenType.NEWLINE)
+
         # But we will allow extra newlines too, of course.
         while self.checkToken(TokenType.NEWLINE):
             self.nextToken()
