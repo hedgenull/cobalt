@@ -49,7 +49,7 @@ class Parser:
 
     # Production rules.
 
-    # program ::= Module {statement} Exit;
+    # program ::= Module {statement};
     def program(self):
         """Program node for the AST."""
         self.emitter.headerLine("#include <stdio.h>\n")
