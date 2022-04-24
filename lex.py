@@ -39,7 +39,6 @@ class TokenType(enum.Enum):
     If = 106
     While = 107
     Abort = 108
-    Import = 109
     # Operators.
     EQ = 201
     PLUS = 202
