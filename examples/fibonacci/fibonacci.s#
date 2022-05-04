@@ -1,7 +1,6 @@
 # Compute the Fibonacci Sequence
 
 Module {
-    Label Begin;
     Var a = 1;
     Var b = 1;
 
@@ -16,5 +15,4 @@ Module {
 
         Var i = i - 1;
     };
-    GoTo Begin;
 };
