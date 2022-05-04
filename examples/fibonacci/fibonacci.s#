@@ -4,11 +4,11 @@ Module {
     Var a = 1;
     Var b = 1;
 
-    PrintLn("Enter a number: ");
+    Print("Enter a number: ");
     InputNum i;
 
     While i > 0 {
-        PrintLn(a + b);
+        Print(a + b);
         Var c = a;
         Var a = b;
         Var b = b + c;

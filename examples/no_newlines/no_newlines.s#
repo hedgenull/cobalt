@@ -1,1 +1,0 @@
-Module { PrintLn("Whoa, you don't need newlines?!?!"); Var a=0; PrintLn(a); While a != 4 { InputNum a; }; };
