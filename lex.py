@@ -31,14 +31,13 @@ class TokenType(enum.Enum):
     RPAREN = 8
     # Keywords.
     Module = 100
-    Label = 101
-    GoTo = 102
-    PrintLn = 103
-    InputNum = 104
-    Var = 105
-    If = 106
-    While = 107
-    Abort = 108
+    PrintLn = 101
+    InputNum = 102
+    Var = 103
+    If = 104
+    Else = 105
+    While = 106
+    Abort = 107
     # Operators.
     EQ = 201
     PLUS = 202
