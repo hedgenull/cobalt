@@ -51,6 +51,7 @@ class TokenType(enum.Enum):
     LTEQ = 209
     GT = 210
     GTEQ = 211
+    COLON = 212
 
 
 class Lexer:
@@ -90,7 +91,12 @@ class Lexer:
     # Skip comments in the code.
     def skipComment(self):
         """Skip comments in the code."""
-        if self.curChar == "#":
+        if self.curChar == "~":
+                self.nextChar()
+                while self.curChar != "~":
+                    self.nextChar()
+                self.nextChar()
+        elif self.curChar == "#":
             while self.curChar != "\n":
                 self.nextChar()
 
@@ -167,7 +173,7 @@ class Lexer:
                 # Don"t allow special characters in the string. No escape characters, newlines, tabs, or %.
                 # We will be using C"s printf on this string.
                 if self.curChar == "\r" or self.curChar == "\n" or self.curChar == "\t" or self.curChar == "\\" or self.curChar == "%":
-                    self.abort("Illegal character in string.")
+                    self.abort(f"Illegal character in string: {self.curChar}")
                 self.nextChar()
 
             tokText = self.source[startPos:self.curPos]  # Get the substring.
@@ -184,7 +190,7 @@ class Lexer:
                 # Must have at least one digit after decimal.
                 if not self.peek().isdigit():
                     # Error!
-                    self.abort("Illegal character in number.")
+                    self.abort(f"Illegal character in number: {self.curChar}")
                 while self.peek().isdigit():
                     self.nextChar()
 
