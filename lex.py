@@ -4,6 +4,7 @@ import sys
 
 # Token contains the original text and the type of token.
 class Token:
+    """Token class for parsing."""
     def __init__(self, tokenText, tokenKind):
         self.text = tokenText  # The token"s actual text. Used for identifiers, strings, and numbers.
         self.kind = tokenKind  # The TokenType that this token is classified as.
@@ -19,6 +20,7 @@ class Token:
 
 # TokenType is our enum for all the types of tokens.
 class TokenType(enum.Enum):
+    """List of token types."""
     EOF = -1
     NEWLINE = 0
     NUMBER = 1
@@ -54,6 +56,7 @@ class TokenType(enum.Enum):
 
 
 class Lexer:
+    """Lexer class to easily generate tokens."""
     def __init__(self, input):
         self.source = input + "\n"  # Source code to lex as a string. Append a newline to simplify lexing/parsing the last token/statement.
         self.curChar = ""  # Current character in the string.
