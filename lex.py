@@ -34,13 +34,16 @@ class TokenType(enum.Enum):
     # Keywords.
     Module = 100
     Print = 101
-    Input = 102
-    Var = 103
+    PrintLn = 102
+    Input = 103
+    InputNum = 104
+    Var = 105
     If = 104
     Else = 105
-    While = 106
-    Abort = 107
-    InputNum = 108
+    ElseIf = 106
+    While = 107
+    Abort = 108
+    
     # Operators.
     EQ = 201
     PLUS = 202

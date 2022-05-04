@@ -50,7 +50,7 @@ class Parser:
     def program(self):
         """Program node for the AST."""
 
-        self.emitter.headerLine("import pyinputplus")
+        self.emitter.headerLine("import pyinputplus\n")
 
         # Since some newlines are required in our grammar, need to skip the excess.
         while self.checkToken(TokenType.NEWLINE):
@@ -61,7 +61,7 @@ class Parser:
     # Module ::= {statement}
     def module(self):
         """Module node for the AST."""
-        self.emitter.headerLine("if __name__ == \"__main__\":")
+        self.emitter.emitLine("if __name__ == \"__main__\":")
         self.emitter.id += 1
         self.match(TokenType.Module)
         self.match(TokenType.LBRACE)
@@ -83,7 +83,7 @@ class Parser:
         """Statement node for the AST."""
         # Check the first token to see what kind of statement this is.
 
-        # "PrintLn" "(" (expression | string) ")"
+        # "Print" "(" (expression | string) ")"
         if self.checkToken(TokenType.Print):
             self.nextToken()
             self.match(TokenType.LPAREN)
@@ -95,6 +95,21 @@ class Parser:
                 self.emitter.emit("print(")
                 self.expression()
                 self.emitter.emitLine(", end='')")
+
+            self.match(TokenType.RPAREN)
+        
+        # "PrintLn" "(" (expression | string) ")"
+        if self.checkToken(TokenType.PrintLn):
+            self.nextToken()
+            self.match(TokenType.LPAREN)
+            if self.checkToken(TokenType.STRING):
+                self.emitter.emitLine("print(\"" + self.curToken.text +
+                                      "\")")
+                self.nextToken()
+            else:
+                self.emitter.emit("print(")
+                self.expression()
+                self.emitter.emitLine(")")
 
             self.match(TokenType.RPAREN)
 
