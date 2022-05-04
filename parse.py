@@ -9,9 +9,6 @@ class Parser:
         self.emitter = emitter
 
         self.symbols = set()  # All variables we have declared so far.
-        self.labelsDeclared = set()  # Keep track of all labels declared
-        self.labelsGotoed = set(
-        )  # All labels goto'ed, so we know if they exist or not.
 
         self.curToken = None
         self.peekToken = None
@@ -52,7 +49,6 @@ class Parser:
     # program ::= Module {statement};
     def program(self):
         """Program node for the AST."""
-        self.emitter.headerLine("#include <stdio.h>\n")
 
         # Since some newlines are required in our grammar, need to skip the excess.
         while self.checkToken(TokenType.NEWLINE):
@@ -63,7 +59,8 @@ class Parser:
     # Module ::= {statement}
     def module(self):
         """Module node for the AST."""
-        self.emitter.headerLine("int main (void) {")
+        self.emitter.headerLine("def main():")
+        self.emitter.id += 1
         self.match(TokenType.Module)
         self.match(TokenType.LBRACE)
 
@@ -79,14 +76,8 @@ class Parser:
         self.match(TokenType.RBRACE)
         self.match(TokenType.SEMI)
 
-        # Check that each label referenced in a GOTO is declared.
-        for label in self.labelsGotoed:
-            if label not in self.labelsDeclared:
-                self.abort("Attempting to GOTO to undeclared label: " + label)
-
         # Wrap things up.
-        self.emitter.emitLine("return 0;")
-        self.emitter.emitLine("}")
+        self.emitter.id -= 1
 
     # One of the following statements...
     def statement(self):
@@ -97,72 +88,48 @@ class Parser:
         if self.checkToken(TokenType.PrintLn):
             self.nextToken()
             self.match(TokenType.LPAREN)
-
             if self.checkToken(TokenType.STRING):
-                # Simple string, so print it.
-                self.emitter.emitLine("printf(\"" + self.curToken.text +
-                                      "\\n\");")
-                self.nextToken()
-
+                self.emitter.emitLine("print(\"" + self.curToken.text + "\")")
             else:
-                # Expect an expression and print the result as a float.
-                self.emitter.emit("printf(\"%" + ".2f\\n\", (float)(")
-                self.expression()
-                self.emitter.emitLine("));")
+                self.emitter.emitLine("print(" + self.curToken.text + ")")
+            self.nextToken()
             self.match(TokenType.RPAREN)
 
         # "If" comparison "{" {statement} "}"
         elif self.checkToken(TokenType.If):
             self.nextToken()
-            self.emitter.emit("if (")
+            self.emitter.emit("if ")
             self.comparison()
 
             self.match(TokenType.LBRACE)
             self.nl()
-            self.emitter.emitLine(") {")
+            self.emitter.emitLine(":")
+            self.emitter.id += 1
 
             # Zero or more statements in the body.
             while not self.checkToken(TokenType.RBRACE):
                 self.statement()
 
             self.match(TokenType.RBRACE)
-            self.emitter.emitLine("}")
+            self.emitter.id -= 1
 
         # "While" comparison "{" {statement} "}"
         elif self.checkToken(TokenType.While):
             self.nextToken()
-            self.emitter.emit("while (")
+            self.emitter.emit("while ")
             self.comparison()
 
             self.match(TokenType.LBRACE)
             self.nl()
-            self.emitter.emitLine(") {")
+            self.emitter.emitLine(":")
+            self.emitter.id += 1
 
             # Zero or more statements in the loop body.
             while not self.checkToken(TokenType.RBRACE):
                 self.statement()
 
             self.match(TokenType.RBRACE)
-            self.emitter.emitLine("}")
-
-        # "Label" ident
-        elif self.checkToken(TokenType.Label):
-            self.nextToken()
-
-            # Make sure this label doesn't already exist.
-            if self.curToken.text in self.labelsDeclared:
-                self.abort("Label already exists: " + self.curToken.text)
-            self.labelsDeclared.add(self.curToken.text)
-
-            self.emitter.emitLine(self.curToken.text + ":")
-            self.match(TokenType.IDENT)
-
-        # "GoTo" ident
-        elif self.checkToken(TokenType.GoTo):
-            self.nextToken()
-            self.labelsGotoed.add(self.curToken.text)
-            self.emitter.emitLine("goto " + self.curToken.text + ";")
-            self.match(TokenType.IDENT)
+            self.emitter.id -= 1
 
         # "Var" ident "=" expression
         elif self.checkToken(TokenType.Var):
@@ -171,14 +138,13 @@ class Parser:
             #  Check if ident exists in symbol table. If not, declare it.
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
-                self.emitter.headerLine("float " + self.curToken.text + ";")
 
             self.emitter.emit(self.curToken.text + " = ")
             self.match(TokenType.IDENT)
             self.match(TokenType.EQ)
 
             self.expression()
-            self.emitter.emitLine(";")
+            self.emitter.emitLine("")
 
         # "Input" ident
         elif self.checkToken(TokenType.InputNum):
@@ -187,15 +153,8 @@ class Parser:
             # If variable doesn't already exist, declare it.
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
-                self.emitter.headerLine("float " + self.curToken.text + ";")
 
-            # Emit scanf but also validate the input. If invalid, set the variable to 0 and clear the input.
-            self.emitter.emitLine("if (0 == scanf(\"%" + "f\", &" +
-                                  self.curToken.text + ")) {")
-            self.emitter.emitLine(self.curToken.text + " = 0;")
-            self.emitter.emit("scanf(\"%")
-            self.emitter.emitLine("*s\");")
-            self.emitter.emitLine("}")
+            self.emitter.emit(self.curToken.text + " = input()")
             self.match(TokenType.IDENT)
 
         # "Abort" "(" STRING ")"
@@ -204,7 +163,7 @@ class Parser:
             self.match(TokenType.LPAREN)
             msg = self.curToken.text
             self.match(TokenType.STRING)
-            self.emitter.emitLine("printf(\"" + msg + "\");\nreturn 1;")
+            self.emitter.emitLine("raise Exception()")
             self.match(TokenType.RPAREN)
 
         # This is not a valid statement. Error!

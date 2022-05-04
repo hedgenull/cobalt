@@ -5,7 +5,7 @@ import argparse
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(
-        description="Skeedge# transpiler to C written in Python")
+        description="Skeedge# transpiler to Python, written in Python")
     ap.add_argument("infile", type=str, help="Skeedge# source file")
     ap.add_argument("outfile",
                     type=str,
@@ -23,10 +23,10 @@ if __name__ == "__main__":
     outfile = args.outfile
 
     if not outfile:
-        emitter = Emitter(f"{infile[:-3]}.c")
+        emitter = Emitter(f"{infile[:-3]}.py")
     else:
-        emitter = Emitter(f"{outfile}.c") if outfile[-2:] != ".c" else Emitter(
-            f"{outfile}")
+        emitter = Emitter(f"{outfile}.py"
+                          ) if outfile[-3:] != ".py" else Emitter(f"{outfile}")
 
     parser = Parser(lexer, emitter)
 
