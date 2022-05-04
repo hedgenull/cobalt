@@ -2,5 +2,5 @@ Module {
     # This is a single-line comment
     ~ This is a
     multiline comment. ~
-    Print("Hello world!");
+    PrintLn("Hello world!");
 };

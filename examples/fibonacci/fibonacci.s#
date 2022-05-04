@@ -4,7 +4,7 @@ Module {
     Var a = 1;
     Var b = 1;
 
-    Print("Enter a number: ");
+    PrintLn("Enter a number: ");
     InputNum i;
 
     While i > 0 {
