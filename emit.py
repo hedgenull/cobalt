@@ -7,10 +7,16 @@ class Emitter:
         self.id = 0
 
     def emit(self, code):
-        self.code += self.id * "\t" + code
+        if self.code and self.code[-1] in "\n\t":
+            self.code += self.id * "\t" + code
+        else:
+            self.code += code
 
     def emitLine(self, code):
-        self.code += self.id * "\t" + code + "\n"
+        if self.code and self.code[-1] == "\n":
+            self.code += self.id * "\t" + code + "\n"
+        else:
+            self.code += code + "\n"
 
     def headerLine(self, code):
         self.header += code + "\n"

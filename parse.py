@@ -50,6 +50,8 @@ class Parser:
     def program(self):
         """Program node for the AST."""
 
+        self.emitter.headerLine("import pyinputplus")
+
         # Since some newlines are required in our grammar, need to skip the excess.
         while self.checkToken(TokenType.NEWLINE):
             self.nextToken()
@@ -59,7 +61,7 @@ class Parser:
     # Module ::= {statement}
     def module(self):
         """Module node for the AST."""
-        self.emitter.headerLine("def main():")
+        self.emitter.headerLine("if __name__ == \"__main__\":")
         self.emitter.id += 1
         self.match(TokenType.Module)
         self.match(TokenType.LBRACE)
@@ -76,23 +78,24 @@ class Parser:
         self.match(TokenType.RBRACE)
         self.match(TokenType.SEMI)
 
-        # Wrap things up.
-        self.emitter.id -= 1
-
     # One of the following statements...
     def statement(self):
         """Statement node for the AST."""
         # Check the first token to see what kind of statement this is.
 
         # "PrintLn" "(" (expression | string) ")"
-        if self.checkToken(TokenType.PrintLn):
+        if self.checkToken(TokenType.Print):
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine("print(\"" + self.curToken.text + "\")")
+                self.emitter.emitLine("print(\"" + self.curToken.text +
+                                      "\", end='')")
+                self.nextToken()
             else:
-                self.emitter.emitLine("print(" + self.curToken.text + ")")
-            self.nextToken()
+                self.emitter.emit("print(")
+                self.expression()
+                self.emitter.emitLine(", end='')")
+
             self.match(TokenType.RPAREN)
 
         # "If" comparison "{" {statement} "}"
@@ -147,6 +150,17 @@ class Parser:
             self.emitter.emitLine("")
 
         # "Input" ident
+        elif self.checkToken(TokenType.Input):
+            self.nextToken()
+
+            # If variable doesn't already exist, declare it.
+            if self.curToken.text not in self.symbols:
+                self.symbols.add(self.curToken.text)
+
+            self.emitter.emitLine(self.curToken.text + " = input()")
+            self.match(TokenType.IDENT)
+
+        # "InputNum" ident
         elif self.checkToken(TokenType.InputNum):
             self.nextToken()
 
@@ -154,7 +168,8 @@ class Parser:
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
 
-            self.emitter.emit(self.curToken.text + " = input()")
+            self.emitter.emitLine(self.curToken.text +
+                                  " = pyinputplus.inputNum()")
             self.match(TokenType.IDENT)
 
         # "Abort" "(" STRING ")"
@@ -163,7 +178,7 @@ class Parser:
             self.match(TokenType.LPAREN)
             msg = self.curToken.text
             self.match(TokenType.STRING)
-            self.emitter.emitLine("raise Exception()")
+            self.emitter.emitLine("raise Exception(\"" + msg + "\")")
             self.match(TokenType.RPAREN)
 
         # This is not a valid statement. Error!
