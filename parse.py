@@ -10,6 +10,7 @@ class Parser:
 
         self.symbols = set()  # All variables we have declared so far.
         self.functions = set()  # All functions declared so far.
+        self.in_func = False  # True if we are in a function, false otherwise.
 
         self.curToken = None
         self.peekToken = None
@@ -157,13 +158,17 @@ class Parser:
                     f"Cannot name function '{self.curToken.text}'- name already taken"
                 )
 
-            self.emitter.emitLine(f"\ndef {self.curToken.text}():")
+            self.emitter.emitLine("")
+            self.emitter.emitLine(f"def {self.curToken.text}():")
+            self.in_func = True
 
             # Add the function name to the list of functions.
             self.functions.add(self.curToken.text)
 
             self.match(TokenType.IDENT)
+
             self.emitter.id += 1
+
             self.match(TokenType.LBRACE)
             self.nl()
 
@@ -173,6 +178,7 @@ class Parser:
             self.match(TokenType.RBRACE)
             self.emitter.id -= 1
             self.emitter.emitLine("")
+            self.in_func = False
 
         # Variable definition ::= "Var" ident "=" expression
         elif self.checkToken(TokenType.Var):
@@ -230,6 +236,27 @@ class Parser:
                     self.nextToken()
                 else:
                     self.abort(f"Expected ')', got {self.curToken.text}")
+
+        # Return statement: must be inside a function ::= "Return" ident | expression | string
+        elif self.checkToken(TokenType.Return):
+            self.nextToken()
+            if self.in_func:
+                if self.checkToken(TokenType.IDENT):
+                    if self.curToken.text not in self.symbols:
+                        self.abort(
+                            f"Referencing variable before assignment: {self.curToken.text}"
+                        )
+                    self.emitter.emitLine(f"return {self.curToken.text}")
+                    self.nextToken()
+                elif self.checkToken(TokenType.STRING):
+                    self.emitter.emitLine(f"return {self.curToken.text}")
+                    self.nextToken()
+                else:
+                    # Expect expression
+                    self.nextToken()
+                    self.expression()
+            else:
+                self.abort("'Return' outside of function")
 
         # This is not a valid statement. Error!
         else:

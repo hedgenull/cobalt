@@ -1,0 +1,16 @@
+Module {
+    PrintLn("Testing 1 2 3");
+
+    Func myFunction {
+        ~
+        This is a function called myFunction.
+        ~
+        PrintLn("I am in a function!");
+        Var myVar = 2;
+        PrintLn(myVar);
+        Return myVar;
+    };
+
+    # Call the function
+    myFunction();
+};
