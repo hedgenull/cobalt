@@ -4,15 +4,14 @@ Module {
     Var a = 1;
     Var b = 1;
 
-    PrintLn("Enter a number: ");
-    InputNum i;
+    PrintLn("Fibonacci Sequence");
+    Var NumberOfTimes = 5;
 
-    While i > 0 {
-        Print(a + b);
+    While NumberOfTimes > 0 {
+        PrintLn(a + b);
         Var c = a;
         Var a = b;
         Var b = b + c;
-
-        Var i = i - 1;
+        Var NumberOfTimes = NumberOfTimes - 1;
     };
 };
