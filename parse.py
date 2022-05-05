@@ -97,14 +97,13 @@ class Parser:
                 self.emitter.emitLine(", end='')")
 
             self.match(TokenType.RPAREN)
-        
+
         # "PrintLn" "(" (expression | string) ")"
         if self.checkToken(TokenType.PrintLn):
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine("print(\"" + self.curToken.text +
-                                      "\")")
+                self.emitter.emitLine("print(\"" + self.curToken.text + "\")")
                 self.nextToken()
             else:
                 self.emitter.emit("print(")
@@ -153,9 +152,7 @@ class Parser:
         elif self.checkToken(TokenType.Var):
             self.nextToken()
 
-            #  Check if ident exists in symbol table. If not, declare it.
-            if self.curToken.text not in self.symbols:
-                self.symbols.add(self.curToken.text)
+            self.symbols.add(self.curToken.text)
 
             self.emitter.emit(self.curToken.text + " = ")
             self.match(TokenType.IDENT)
@@ -168,9 +165,7 @@ class Parser:
         elif self.checkToken(TokenType.Input):
             self.nextToken()
 
-            # If variable doesn't already exist, declare it.
-            if self.curToken.text not in self.symbols:
-                self.symbols.add(self.curToken.text)
+            self.symbols.add(self.curToken.text)
 
             self.emitter.emitLine(self.curToken.text + " = input()")
             self.match(TokenType.IDENT)
@@ -179,9 +174,7 @@ class Parser:
         elif self.checkToken(TokenType.InputNum):
             self.nextToken()
 
-            # If variable doesn't already exist, declare it.
-            if self.curToken.text not in self.symbols:
-                self.symbols.add(self.curToken.text)
+            self.symbols.add(self.curToken.text)
 
             self.emitter.emitLine(self.curToken.text +
                                   " = pyinputplus.inputNum()")
@@ -235,7 +228,7 @@ class Parser:
         # Can have 0 or more +/- and expressions.
         while self.checkToken(TokenType.PLUS) or self.checkToken(
                 TokenType.MINUS):
-            self.emitter.emit(self.curToken.text)
+            self.emitter.emit(" " + self.curToken.text + " ")
             self.nextToken()
             self.term()
 
@@ -246,7 +239,7 @@ class Parser:
         # Can have 0 or more *// and expressions.
         while self.checkToken(TokenType.ASTERISK) or self.checkToken(
                 TokenType.SLASH):
-            self.emitter.emit(self.curToken.text)
+            self.emitter.emit(" " + self.curToken.text + " ")
             self.nextToken()
             self.unary()
 
@@ -255,7 +248,7 @@ class Parser:
         """Unary node for the AST."""
         # Optional unary +/-
         if self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
-            self.emitter.emit(self.curToken.text)
+            self.emitter.emit(" " + self.curToken.text + " ")
             self.nextToken()
         self.primary()
 
@@ -288,9 +281,9 @@ class Parser:
 
     def semi_nl(self):
         """Match one semicolon and optional newlines."""
-        # Require a semicolon and at least one newline.
+        # Require a semicolon..
         self.match(TokenType.SEMI)
 
-        # But we will allow extra newlines too, of course.
+        # Skip all newlines.
         while self.checkToken(TokenType.NEWLINE):
             self.nextToken()
