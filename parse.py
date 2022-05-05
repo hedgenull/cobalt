@@ -9,6 +9,7 @@ class Parser:
         self.emitter = emitter
 
         self.symbols = set()  # All variables we have declared so far.
+        self.functions = set()  # All functions declared so far.
 
         self.curToken = None
         self.peekToken = None
@@ -83,7 +84,7 @@ class Parser:
         """Statement node for the AST."""
         # Check the first token to see what kind of statement this is.
 
-        # "Print" "(" (expression | string) ")"
+        # Print (no newline) ::= "Print" "(" (expression | string) ")"
         if self.checkToken(TokenType.Print):
             self.nextToken()
             self.match(TokenType.LPAREN)
@@ -98,7 +99,7 @@ class Parser:
 
             self.match(TokenType.RPAREN)
 
-        # "PrintLn" "(" (expression | string) ")"
+        # Print (with newline) ::= "PrintLn" "(" (expression | string) ")"
         if self.checkToken(TokenType.PrintLn):
             self.nextToken()
             self.match(TokenType.LPAREN)
@@ -112,7 +113,7 @@ class Parser:
 
             self.match(TokenType.RPAREN)
 
-        # "If" comparison "{" {statement} "}"
+        # If-statement ::= "If" comparison "{" {statement} "}"
         elif self.checkToken(TokenType.If):
             self.nextToken()
             self.emitter.emit("if ")
@@ -130,7 +131,7 @@ class Parser:
             self.match(TokenType.RBRACE)
             self.emitter.id -= 1
 
-        # "While" comparison "{" {statement} "}"
+        # While loop ::= "While" comparison "{" {statement} "}"
         elif self.checkToken(TokenType.While):
             self.nextToken()
             self.emitter.emit("while ")
@@ -148,7 +149,7 @@ class Parser:
             self.match(TokenType.RBRACE)
             self.emitter.id -= 1
 
-        # "Func" ident "{" {statement} "}"
+        # Function definition ::= "Func" ident "{" {statement} "}"
         elif self.checkToken(TokenType.Func):
             self.nextToken()
             if self.curToken.text in self.symbols:
@@ -156,7 +157,11 @@ class Parser:
                     f"Cannot name function '{self.curToken.text}'- name already taken"
                 )
 
-            self.emitter.emitLine(f"def {self.curToken.text}():")
+            self.emitter.emitLine(f"\ndef {self.curToken.text}():")
+
+            # Add the function name to the list of functions.
+            self.functions.add(self.curToken.text)
+
             self.match(TokenType.IDENT)
             self.emitter.id += 1
             self.match(TokenType.LBRACE)
@@ -167,8 +172,9 @@ class Parser:
 
             self.match(TokenType.RBRACE)
             self.emitter.id -= 1
+            self.emitter.emitLine("")
 
-        # "Var" ident "=" expression
+        # Variable definition ::= "Var" ident "=" expression
         elif self.checkToken(TokenType.Var):
             self.nextToken()
 
@@ -181,7 +187,7 @@ class Parser:
             self.expression()
             self.emitter.emitLine("")
 
-        # "Input" ident
+        # Input ::= "Input" ident
         elif self.checkToken(TokenType.Input):
             self.nextToken()
 
@@ -190,7 +196,7 @@ class Parser:
             self.emitter.emitLine(self.curToken.text + " = input()")
             self.match(TokenType.IDENT)
 
-        # "InputNum" ident
+        # InputNum ::= "InputNum" ident
         elif self.checkToken(TokenType.InputNum):
             self.nextToken()
 
@@ -200,7 +206,7 @@ class Parser:
                                   " = pyinputplus.inputNum()")
             self.match(TokenType.IDENT)
 
-        # "Abort" "(" STRING ")"
+        # Abort ::= "Abort" "(" STRING ")"
         elif self.checkToken(TokenType.Abort):
             self.nextToken()
             self.match(TokenType.LPAREN)
@@ -208,6 +214,22 @@ class Parser:
             self.match(TokenType.STRING)
             self.emitter.emitLine("raise Exception(\"" + msg + "\")")
             self.match(TokenType.RPAREN)
+
+        # Function call ::= ident "()"
+        elif self.checkToken(TokenType.IDENT):
+            name = self.curToken.text
+            self.nextToken()
+            if self.checkToken(TokenType.LPAREN):
+                self.nextToken()
+                if self.checkToken(TokenType.RPAREN):
+                    # This is a function call. Check if the function exists.
+                    if name not in self.functions:
+                        self.abort(
+                            f"Referencing function before assignment: {name}")
+                    self.emitter.emitLine(f"{name}()")
+                    self.nextToken()
+                else:
+                    self.abort(f"Expected ')', got {self.curToken.text}")
 
         # This is not a valid statement. Error!
         else:
