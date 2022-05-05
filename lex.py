@@ -31,6 +31,9 @@ class TokenType(enum.Enum):
     RBRACE = 6
     LPAREN = 7
     RPAREN = 8
+    COLON = 9
+    COMMA = 10
+
     # Keywords.
     Module = 100
     Print = 101
@@ -43,7 +46,9 @@ class TokenType(enum.Enum):
     ElseIf = 106
     While = 107
     Abort = 108
-    
+    Func = 109
+    Return = 110
+
     # Operators.
     EQ = 201
     PLUS = 202
@@ -56,7 +61,6 @@ class TokenType(enum.Enum):
     LTEQ = 209
     GT = 210
     GTEQ = 211
-    COLON = 212
 
 
 class Lexer:
@@ -98,10 +102,10 @@ class Lexer:
     def skipComment(self):
         """Skip comments in the code."""
         if self.curChar == "~":
+            self.nextChar()
+            while self.curChar != "~":
                 self.nextChar()
-                while self.curChar != "~":
-                    self.nextChar()
-                self.nextChar()
+            self.nextChar()
         elif self.curChar == "#":
             while self.curChar != "\n":
                 self.nextChar()
