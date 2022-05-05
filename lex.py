@@ -63,6 +63,9 @@ class TokenType(enum.Enum):
     GTEQ = 211
 
 
+KEYWORDS = [tt for tt in TokenType]
+
+
 class Lexer:
     """Lexer class to easily generate tokens."""
     def __init__(self, input):
@@ -143,6 +146,8 @@ class Lexer:
             token = Token(self.curChar, TokenType.LPAREN)
         elif self.curChar == ")":
             token = Token(self.curChar, TokenType.RPAREN)
+        elif self.curChar == ",":
+            token = Token(self.curChar, TokenType.COMMA)
         elif self.curChar == "=":
             # Check whether this token is = or ==
             if self.peek() == "=":

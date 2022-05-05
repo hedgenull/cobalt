@@ -148,6 +148,26 @@ class Parser:
             self.match(TokenType.RBRACE)
             self.emitter.id -= 1
 
+        # "Func" ident "{" {statement} "}"
+        elif self.checkToken(TokenType.Func):
+            self.nextToken()
+            if self.curToken.text in self.symbols:
+                self.abort(
+                    f"Cannot name function '{self.curToken.text}'- name already taken"
+                )
+
+            self.emitter.emitLine(f"def {self.curToken.text}():")
+            self.match(TokenType.IDENT)
+            self.emitter.id += 1
+            self.match(TokenType.LBRACE)
+            self.nl()
+
+            while not self.checkToken(TokenType.RBRACE):
+                self.statement()
+
+            self.match(TokenType.RBRACE)
+            self.emitter.id -= 1
+
         # "Var" ident "=" expression
         elif self.checkToken(TokenType.Var):
             self.nextToken()
