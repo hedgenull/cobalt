@@ -180,14 +180,13 @@ class Parser:
             self.emitter.emitLine("")
             self.in_func = False
 
-        # Variable definition ::= "Var" ident "=" expression
-        elif self.checkToken(TokenType.Var):
+        # Variable definition ::= variable "=" expression
+        elif self.checkToken(TokenType.VARIABLE):
+            name = self.curToken.text.strip("$")
+            self.symbols.add(name)
+            self.emitter.emit(name + " = ")
+
             self.nextToken()
-
-            self.symbols.add(self.curToken.text)
-
-            self.emitter.emit(self.curToken.text + " = ")
-            self.match(TokenType.IDENT)
             self.match(TokenType.EQ)
 
             self.expression()
@@ -197,16 +196,16 @@ class Parser:
         elif self.checkToken(TokenType.Input):
             self.nextToken()
 
-            self.symbols.add(self.curToken.text)
+            self.symbols.add(self.curToken.text.strip("$"))
 
             self.emitter.emitLine(self.curToken.text + " = input()")
-            self.match(TokenType.IDENT)
+            self.match(TokenType.VARIABLE)
 
         # InputNum ::= "InputNum" ident
         elif self.checkToken(TokenType.InputNum):
             self.nextToken()
 
-            self.symbols.add(self.curToken.text)
+            self.symbols.add(self.curToken.text.strip("$"))
 
             self.emitter.emitLine(self.curToken.text +
                                   " = pyinputplus.inputNum()")
@@ -327,13 +326,13 @@ class Parser:
         if self.checkToken(TokenType.NUMBER):
             self.emitter.emit(self.curToken.text)
             self.nextToken()
-        elif self.checkToken(TokenType.IDENT):
+        elif self.checkToken(TokenType.VARIABLE):
             # Ensure the variable already exists.
-            if self.curToken.text not in self.symbols:
+            if self.curToken.text.strip("$") not in self.symbols:
                 self.abort("Referencing variable before assignment: " +
                            self.curToken.text)
 
-            self.emitter.emit(self.curToken.text)
+            self.emitter.emit(self.curToken.text.strip("$"))
             self.nextToken()
         else:
             # Error!

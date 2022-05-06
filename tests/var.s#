@@ -1,0 +1,6 @@
+Module {
+    $a = 3;
+    If $a == 3 {
+        PrintLn("A hooie");
+    };
+};
