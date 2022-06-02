@@ -5,7 +5,7 @@ Module {
     Var b = 1;
 
     PrintLn("Fibonacci Sequence");
-    Var NumberOfTimes = 5;
+    Var NumberOfTimes = 10;
 
     While NumberOfTimes > 0 {
         PrintLn(a + b);
