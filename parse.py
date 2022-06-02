@@ -181,14 +181,11 @@ class Parser:
             self.in_func = False
 
         # Variable definition ::= variable "=" expression
-        elif self.checkToken(TokenType.VARIABLE):
-            name = self.curToken.text.strip("$")
-            self.symbols.add(name)
-            self.emitter.emit(name + " = ")
-
+        elif self.checkToken(TokenType.Var):
             self.nextToken()
-            self.match(TokenType.EQ)
-
+            self.symbols.add(self.curToken.text)
+            self.emitter.emit(f"{self.curToken.text} = ")
+            self.match(TokenType.IDENT)
             self.expression()
             self.emitter.emitLine("")
 

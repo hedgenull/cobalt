@@ -33,7 +33,6 @@ class TokenType(enum.Enum):
     RPAREN = 8
     COLON = 9
     COMMA = 10
-    VARIABLE = 11
 
     # Keywords.
     Module = 100
@@ -152,7 +151,8 @@ class Lexer:
         elif self.curChar == "$":
             if self.peek().isalpha():
                 if not Token.checkIfKeyword(self.peek()):
-                    token = Token(self.curChar + self.peek(), TokenType.VARIABLE)
+                    token = Token(self.curChar + self.peek(),
+                                  TokenType.VARIABLE)
                     self.nextChar()
         elif self.curChar == "=":
             # Check whether this token is = or ==
