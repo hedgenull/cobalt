@@ -52,8 +52,6 @@ class Parser:
     def program(self):
         """Program node for the AST."""
 
-        self.emitter.headerLine("import pyinputplus\n")
-
         # Since some newlines are required in our grammar, need to skip the excess.
         while self.checkToken(TokenType.NEWLINE):
             self.nextToken()
@@ -90,7 +88,7 @@ class Parser:
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine('print("' + self.curToken.text + "\", end='')")
+                self.emitter.emitLine(f"print(\"{self.curToken.value}\", end='')")
                 self.nextToken()
             else:
                 self.emitter.emit("print(")
@@ -104,7 +102,7 @@ class Parser:
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine('print("' + self.curToken.text + '")')
+                self.emitter.emitLine(f'print("{self.curToken.value}")')
                 self.nextToken()
             else:
                 self.emitter.emit("print(")
