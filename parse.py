@@ -61,8 +61,6 @@ class Parser:
     # Module ::= {statement}
     def module(self):
         """Module node for the AST."""
-        self.emitter.emitLine('if __name__ == "__main__":')
-        self.emitter.id += 1
         self.match(TokenType.Module)
         self.match(TokenType.LBRACE)
 
