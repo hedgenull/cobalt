@@ -1,8 +1,8 @@
-# Skeedge#: A small but functional programming language
+# Cobalt: A small but functional programming language
 
-Skeedge# (pronounced *Skeedge Sharp*) is a compiled programming language written in Python.
+Cobalt is a compiled programming language written in Python.
 It has fairly simple syntax and is similar to Basic/Visual Basic but with some C/Java elements.
-Skeedge# transpiles to Python code.
+Cobalt transpiles to Python code.
 
 Here's some example code:
 ```

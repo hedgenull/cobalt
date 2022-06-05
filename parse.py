@@ -1,4 +1,5 @@
 import sys
+
 from lex import *
 
 
@@ -31,8 +32,7 @@ class Parser:
     def match(self, kind):
         """Try to match the current token. If not, error. Advances the current token."""
         if not self.checkToken(kind):
-            self.abort("Expected " + kind.name + ", got " +
-                       self.curToken.kind.name)
+            self.abort("Expected " + kind.name + ", got " + self.curToken.kind.name)
         self.nextToken()
 
     # Advances the current token.
@@ -63,7 +63,7 @@ class Parser:
     # Module ::= {statement}
     def module(self):
         """Module node for the AST."""
-        self.emitter.emitLine("if __name__ == \"__main__\":")
+        self.emitter.emitLine('if __name__ == "__main__":')
         self.emitter.id += 1
         self.match(TokenType.Module)
         self.match(TokenType.LBRACE)
@@ -90,8 +90,7 @@ class Parser:
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine("print(\"" + self.curToken.text +
-                                      "\", end='')")
+                self.emitter.emitLine('print("' + self.curToken.text + "\", end='')")
                 self.nextToken()
             else:
                 self.emitter.emit("print(")
@@ -105,7 +104,7 @@ class Parser:
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine("print(\"" + self.curToken.text + "\")")
+                self.emitter.emitLine('print("' + self.curToken.text + '")')
                 self.nextToken()
             else:
                 self.emitter.emit("print(")
@@ -154,9 +153,7 @@ class Parser:
         elif self.checkToken(TokenType.Func):
             self.nextToken()
             if self.curToken.text in self.symbols:
-                self.abort(
-                    f"Cannot name function '{self.curToken.text}'- name already taken"
-                )
+                self.abort(f"Cannot name function '{self.curToken.text}'- name already taken")
 
             self.emitter.emitLine("")
             self.emitter.emitLine(f"def {self.curToken.text}():")
@@ -204,8 +201,7 @@ class Parser:
 
             self.symbols.add(self.curToken.text.strip("$"))
 
-            self.emitter.emitLine(self.curToken.text +
-                                  " = pyinputplus.inputNum()")
+            self.emitter.emitLine(self.curToken.text + " = pyinputplus.inputNum()")
             self.match(TokenType.IDENT)
 
         # Abort ::= "Abort" "(" STRING ")"
@@ -214,7 +210,7 @@ class Parser:
             self.match(TokenType.LPAREN)
             msg = self.curToken.text
             self.match(TokenType.STRING)
-            self.emitter.emitLine("raise Exception(\"" + msg + "\")")
+            self.emitter.emitLine('raise Exception("' + msg + '")')
             self.match(TokenType.RPAREN)
 
         # Function call ::= ident "()"
@@ -226,8 +222,7 @@ class Parser:
                 if self.checkToken(TokenType.RPAREN):
                     # This is a function call. Check if the function exists.
                     if name not in self.functions:
-                        self.abort(
-                            f"Referencing function before assignment: {name}")
+                        self.abort(f"Referencing function before assignment: {name}")
                     self.emitter.emitLine(f"{name}()")
                     self.nextToken()
                 else:
@@ -239,9 +234,7 @@ class Parser:
             if self.in_func:
                 if self.checkToken(TokenType.IDENT):
                     if self.curToken.text not in self.symbols:
-                        self.abort(
-                            f"Referencing variable before assignment: {self.curToken.text}"
-                        )
+                        self.abort(f"Referencing variable before assignment: {self.curToken.text}")
                     self.emitter.emitLine(f"return {self.curToken.text}")
                     self.nextToken()
                 elif self.checkToken(TokenType.STRING):
@@ -256,8 +249,9 @@ class Parser:
 
         # This is not a valid statement. Error!
         else:
-            self.abort("Invalid statement at " + self.curToken.text + " (" +
-                       self.curToken.kind.name + ")")
+            self.abort(
+                "Invalid statement at " + self.curToken.text + " (" + self.curToken.kind.name + ")"
+            )
 
         # Semicolon and newline.
         self.semi_nl()
@@ -265,11 +259,14 @@ class Parser:
     # Return true if the current token is a comparison operator.
     def isComparisonOperator(self):
         """Check if the current token is a comparison operator."""
-        return self.checkToken(TokenType.GT) or self.checkToken(
-            TokenType.GTEQ) or self.checkToken(
-                TokenType.LT) or self.checkToken(
-                    TokenType.LTEQ) or self.checkToken(
-                        TokenType.EQEQ) or self.checkToken(TokenType.NOTEQ)
+        return (
+            self.checkToken(TokenType.GT)
+            or self.checkToken(TokenType.GTEQ)
+            or self.checkToken(TokenType.LT)
+            or self.checkToken(TokenType.LTEQ)
+            or self.checkToken(TokenType.EQEQ)
+            or self.checkToken(TokenType.NOTEQ)
+        )
 
     # comparison ::= expression (("==" | "!=" | ">" | ">=" | "<" | "<=") expression)+
     def comparison(self):
@@ -291,8 +288,7 @@ class Parser:
         """Expression node for the AST."""
         self.term()
         # Can have 0 or more +/- and expressions.
-        while self.checkToken(TokenType.PLUS) or self.checkToken(
-                TokenType.MINUS):
+        while self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
             self.emitter.emit(" " + self.curToken.text + " ")
             self.nextToken()
             self.term()
@@ -302,8 +298,7 @@ class Parser:
         """Term node for the AST."""
         self.unary()
         # Can have 0 or more *// and expressions.
-        while self.checkToken(TokenType.ASTERISK) or self.checkToken(
-                TokenType.SLASH):
+        while self.checkToken(TokenType.ASTERISK) or self.checkToken(TokenType.SLASH):
             self.emitter.emit(" " + self.curToken.text + " ")
             self.nextToken()
             self.unary()
@@ -326,8 +321,7 @@ class Parser:
         elif self.checkToken(TokenType.VARIABLE):
             # Ensure the variable already exists.
             if self.curToken.text.strip("$") not in self.symbols:
-                self.abort("Referencing variable before assignment: " +
-                           self.curToken.text)
+                self.abort("Referencing variable before assignment: " + self.curToken.text)
 
             self.emitter.emit(self.curToken.text.strip("$"))
             self.nextToken()
