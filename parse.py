@@ -186,33 +186,6 @@ class Parser:
             self.expression()
             self.emitter.emitLine("")
 
-        # Input ::= "Input" ident
-        elif self.checkToken(TokenType.Input):
-            self.nextToken()
-
-            self.symbols.add(self.curToken.text.strip("$"))
-
-            self.emitter.emitLine(self.curToken.text + " = input()")
-            self.match(TokenType.VARIABLE)
-
-        # InputNum ::= "InputNum" ident
-        elif self.checkToken(TokenType.InputNum):
-            self.nextToken()
-
-            self.symbols.add(self.curToken.text.strip("$"))
-
-            self.emitter.emitLine(self.curToken.text + " = pyinputplus.inputNum()")
-            self.match(TokenType.IDENT)
-
-        # Abort ::= "Abort" "(" STRING ")"
-        elif self.checkToken(TokenType.Abort):
-            self.nextToken()
-            self.match(TokenType.LPAREN)
-            msg = self.curToken.text
-            self.match(TokenType.STRING)
-            self.emitter.emitLine('raise Exception("' + msg + '")')
-            self.match(TokenType.RPAREN)
-
         # Function call ::= ident "()"
         elif self.checkToken(TokenType.IDENT):
             name = self.curToken.text

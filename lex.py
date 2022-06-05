@@ -5,8 +5,11 @@ import sys
 # Token contains the original text and the type of token.
 class Token:
     """Token class for parsing."""
+
     def __init__(self, tokenText, tokenKind):
-        self.text = tokenText  # The token"s actual text. Used for identifiers, strings, and numbers.
+        self.text = (
+            tokenText  # The token"s actual text. Used for identifiers, strings, and numbers.
+        )
         self.kind = tokenKind  # The TokenType that this token is classified as.
 
     @staticmethod
@@ -21,6 +24,7 @@ class Token:
 # TokenType is our enum for all the types of tokens.
 class TokenType(enum.Enum):
     """List of token types."""
+
     EOF = -1
     NEWLINE = 0
     NUMBER = 1
@@ -38,16 +42,13 @@ class TokenType(enum.Enum):
     Module = 100
     Print = 101
     PrintLn = 102
-    Input = 103
-    InputNum = 104
-    Var = 105
+    Var = 103
     If = 104
     Else = 105
     ElseIf = 106
     While = 107
-    Abort = 108
-    Func = 109
-    Return = 110
+    Func = 108
+    Return = 109
 
     # Operators.
     EQ = 201
@@ -68,8 +69,11 @@ KEYWORDS = [tt for tt in TokenType]
 
 class Lexer:
     """Lexer class to easily generate tokens."""
+
     def __init__(self, input):
-        self.source = input + "\n"  # Source code to lex as a string. Append a newline to simplify lexing/parsing the last token/statement.
+        self.source = (
+            input + "\n"
+        )  # Source code to lex as a string. Append a newline to simplify lexing/parsing the last token/statement.
         self.curChar = ""  # Current character in the string.
         self.curPos = -1  # Current position in the string.
         self.nextChar()
@@ -151,8 +155,7 @@ class Lexer:
         elif self.curChar == "$":
             if self.peek().isalpha():
                 if not Token.checkIfKeyword(self.peek()):
-                    token = Token(self.curChar + self.peek(),
-                                  TokenType.VARIABLE)
+                    token = Token(self.curChar + self.peek(), TokenType.VARIABLE)
                     self.nextChar()
         elif self.curChar == "=":
             # Check whether this token is = or ==
@@ -185,15 +188,15 @@ class Lexer:
                 token = Token(lastChar + self.curChar, TokenType.NOTEQ)
             else:
                 self.abort("Expected !=, got !" + self.peek())
-        elif self.curChar == "\"":
+        elif self.curChar == '"':
             # Get characters between quotations.
             self.nextChar()
             startPos = self.curPos
 
-            while self.curChar != "\"":
+            while self.curChar != '"':
                 self.nextChar()
 
-            tokText = self.source[startPos:self.curPos]  # Get the substring.
+            tokText = self.source[startPos : self.curPos]  # Get the substring.
             token = Token(tokText, TokenType.STRING)
         elif self.curChar.isdigit():
             # Leading character is a digit, so this must be a number.
@@ -211,8 +214,7 @@ class Lexer:
                 while self.peek().isdigit():
                     self.nextChar()
 
-            tokText = self.source[startPos:self.curPos +
-                                  1]  # Get the substring.
+            tokText = self.source[startPos : self.curPos + 1]  # Get the substring.
             token = Token(tokText, TokenType.NUMBER)
         elif self.curChar.isalpha():
             # Leading character is a letter, so this must be an identifier or a keyword.
@@ -222,8 +224,7 @@ class Lexer:
                 self.nextChar()
 
             # Check if the token is in the list of keywords.
-            tokText = self.source[startPos:self.curPos +
-                                  1]  # Get the substring.
+            tokText = self.source[startPos : self.curPos + 1]  # Get the substring.
             keyword = Token.checkIfKeyword(tokText)
             if keyword == None:  # Identifier
                 token = Token(tokText, TokenType.IDENT)
