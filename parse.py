@@ -86,7 +86,7 @@ class Parser:
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine(f"print(\"{self.curToken.value}\", end='')")
+                self.emitter.emitLine(f"print(\"{self.curToken.text}\", end='')")
                 self.nextToken()
             else:
                 self.emitter.emit("print(")
@@ -100,7 +100,7 @@ class Parser:
             self.nextToken()
             self.match(TokenType.LPAREN)
             if self.checkToken(TokenType.STRING):
-                self.emitter.emitLine(f'print("{self.curToken.value}")')
+                self.emitter.emitLine(f'print("{self.curToken.text}")')
                 self.nextToken()
             else:
                 self.emitter.emit("print(")
@@ -173,12 +173,13 @@ class Parser:
             self.emitter.emitLine("")
             self.in_func = False
 
-        # Variable definition ::= variable "=" expression
+        # Variable definition ::= "Var" ident "=" expression
         elif self.checkToken(TokenType.Var):
             self.nextToken()
             self.symbols.add(self.curToken.text)
             self.emitter.emit(f"{self.curToken.text} = ")
             self.match(TokenType.IDENT)
+            self.match(TokenType.EQ)
             self.expression()
             self.emitter.emitLine("")
 
@@ -287,13 +288,13 @@ class Parser:
         if self.checkToken(TokenType.NUMBER):
             self.emitter.emit(self.curToken.text)
             self.nextToken()
-        elif self.checkToken(TokenType.VARIABLE):
-            # Ensure the variable already exists.
-            if self.curToken.text.strip("$") not in self.symbols:
-                self.abort("Referencing variable before assignment: " + self.curToken.text)
-
-            self.emitter.emit(self.curToken.text.strip("$"))
-            self.nextToken()
+        elif self.checkToken(TokenType.IDENT):
+            if self.curToken.text in self.symbols:
+                self.emitter.emit(self.curToken.text)
+                self.nextToken()
+            else:
+                # Undefined variable!
+                self.abort(f"Undefined variable '{self.curToken.text}'")
         else:
             # Error!
             self.abort("Unexpected token at " + self.curToken.text)

@@ -152,11 +152,6 @@ class Lexer:
             token = Token(self.curChar, TokenType.RPAREN)
         elif self.curChar == ",":
             token = Token(self.curChar, TokenType.COMMA)
-        elif self.curChar == "$":
-            if self.peek().isalpha():
-                if not Token.checkIfKeyword(self.peek()):
-                    token = Token(self.curChar + self.peek(), TokenType.VARIABLE)
-                    self.nextChar()
         elif self.curChar == "=":
             # Check whether this token is = or ==
             if self.peek() == "=":

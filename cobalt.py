@@ -7,9 +7,7 @@ from parse import *
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Cobalt transpiler to Python")
     ap.add_argument("infile", type=str, help="Cobalt source file")
-    ap.add_argument(
-        "outfile", type=str, help="Filename to output to (default is input filename)", default=None
-    )
+    ap.add_argument("outfile", type=str, help="Python output file", default=None)
 
     args = ap.parse_args()
 
