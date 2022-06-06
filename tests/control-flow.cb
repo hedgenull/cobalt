@@ -1,0 +1,13 @@
+# test control flow- if, elseif, else
+
+Module {
+    Var a = 3;
+
+    If a == 3 {
+        PrintLn("A is 3");
+    } ElseIf a == 2 {
+        PrintLn("A is 2");
+    } Else {
+        PrintLn("A is not 2 or 3");
+    };
+}

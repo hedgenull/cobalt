@@ -127,6 +127,43 @@ class Parser:
             self.match(TokenType.RBRACE)
             self.emitter.id -= 1
 
+            self.nextToken()
+
+            if self.checkToken(TokenType.Else):
+                self.nextToken()
+                self.emitter.emitLine("else:")
+
+                self.match(TokenType.LBRACE)
+                self.nl()
+
+                # Zero or more statements in the body.
+                while not self.checkToken(TokenType.RBRACE):
+                    self.statement()
+
+                self.match(TokenType.RBRACE)
+                self.emitter.id -= 1
+
+                self.nextToken()
+
+            elif self.checkToken(TokenType.ElseIf):
+                self.nextToken()
+                self.emitter.emit("elif ")
+                self.comparison()
+
+                self.match(TokenType.LBRACE)
+                self.nl()
+                self.emitter.emitLine(":")
+                self.emitter.id += 1
+
+                # Zero or more statements in the body.
+                while not self.checkToken(TokenType.RBRACE):
+                    self.statement()
+
+                self.match(TokenType.RBRACE)
+                self.emitter.id -= 1
+
+                self.nextToken()
+
         # While loop ::= "While" comparison "{" {statement} "}"
         elif self.checkToken(TokenType.While):
             self.nextToken()
