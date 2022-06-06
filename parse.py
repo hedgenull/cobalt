@@ -244,12 +244,12 @@ class Parser:
         self.expression()
         # Must be at least one comparison operator and another expression.
         if self.isComparisonOperator():
-            self.emitter.emit(self.curToken.text)
+            self.emitter.emit(f" {self.curToken.text} ")
             self.nextToken()
             self.expression()
         # Can have 0 or more comparison operator and expressions.
         while self.isComparisonOperator():
-            self.emitter.emit(self.curToken.text)
+            self.emitter.emit(f" {self.curToken.text} ")
             self.nextToken()
             self.expression()
 
@@ -259,7 +259,7 @@ class Parser:
         self.term()
         # Can have 0 or more +/- and expressions.
         while self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
-            self.emitter.emit(" " + self.curToken.text + " ")
+            self.emitter.emit(f" {self.curToken.text} ")
             self.nextToken()
             self.term()
 
@@ -269,7 +269,7 @@ class Parser:
         self.unary()
         # Can have 0 or more *// and expressions.
         while self.checkToken(TokenType.ASTERISK) or self.checkToken(TokenType.SLASH):
-            self.emitter.emit(" " + self.curToken.text + " ")
+            self.emitter.emit(f" {self.curToken.text} ")
             self.nextToken()
             self.unary()
 
@@ -278,7 +278,7 @@ class Parser:
         """Unary node for the AST."""
         # Optional unary +/-
         if self.checkToken(TokenType.PLUS) or self.checkToken(TokenType.MINUS):
-            self.emitter.emit(" " + self.curToken.text + " ")
+            self.emitter.emit(f" {self.curToken.text} ")
             self.nextToken()
         self.primary()
 
