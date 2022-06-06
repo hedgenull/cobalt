@@ -7,7 +7,7 @@ from parse import *
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Cobalt transpiler to Python")
     ap.add_argument("infile", type=str, help="Cobalt source file")
-    ap.add_argument("outfile", type=str, help="Python output file", default=None)
+    ap.add_argument("-o", help="Python output file", default=None)
 
     args = ap.parse_args()
 
@@ -17,10 +17,10 @@ if __name__ == "__main__":
     # Initialize the lexer, emitter, and parser.
     lexer = Lexer(code)
 
-    outfile = args.outfile
+    outfile = args.o
 
     if not outfile:
-        emitter = Emitter(f"{infile[:-3]}.py")
+        emitter = Emitter(f"{args.infile[:-3]}.py")
     else:
         emitter = Emitter(f"{outfile}.py") if outfile[-3:] != ".py" else Emitter(f"{outfile}")
 

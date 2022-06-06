@@ -1,0 +1,8 @@
+Module {
+    Var a = 1; # Change this to a zero for different results
+
+    PrintLn(a); # Print a, regardless of value
+    While a != 0 { # If it's not zero, print it some more (infinitely)
+        PrintLn(a);
+    };
+};
